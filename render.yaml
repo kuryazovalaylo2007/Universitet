@@ -1,8 +1,9 @@
 services:
   - type: web
     name: smart-university
-    env: python
-    buildCommand: pip install -r requirements.txt
+    runtime: python
+    buildCommand:
+      pip install --only-binary=:all: -r requirements.txt
     startCommand: gunicorn backend.app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
     envVars:
       - key: PYTHON_VERSION
