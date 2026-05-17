@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart University — Talabalar Tizimi</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">SU</div>
+            <span class="logo-text">Smart<br><strong>University</strong></span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-page="dashboard">
+                <span class="nav-icon">◈</span> Dashboard
+            </a>
+            <a href="#" class="nav-item" data-page="talabalar">
+                <span class="nav-icon">◉</span> Talabalar
+            </a>
+            <a href="#" class="nav-item" data-page="baholar">
+                <span class="nav-icon">◆</span> Baholar Tahlili
+            </a>
+            <a href="#" class="nav-item" data-page="davomat">
+                <span class="nav-icon">◇</span> Davomat
+            </a>
+            <a href="#" class="nav-item" data-page="reyting">
+                <span class="nav-icon">★</span> Reyting
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="status-dot"></div>
+            <span>Tizim faol</span>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- DASHBOARD PAGE -->
+        <section class="page active" id="page-dashboard">
+            <div class="page-header">
+                <h1>Dashboard <span class="accent">—</span> Umumiy Ko'rinish</h1>
+                <p class="subtitle">Barcha ko'rsatkichlar real vaqtda</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-label">Jami Talabalar</div>
+                    <div class="stat-value" id="stat-talabalar">—</div>
+                    <div class="stat-sub">ro'yxatda</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">O'rtacha Baho</div>
+                    <div class="stat-value" id="stat-baho">—</div>
+                    <div class="stat-sub">100 ballik tizim</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Davomat</div>
+                    <div class="stat-value" id="stat-davomat">—</div>
+                    <div class="stat-sub">% o'rtacha</div>
+                </div>
+                <div class="stat-card accent-card">
+                    <div class="stat-label">A' baho olganlar</div>
+                    <div class="stat-value" id="stat-a">—</div>
+                    <div class="stat-sub">talaba</div>
+                </div>
+            </div>
+
+            <div class="charts-row">
+                <div class="chart-card wide">
+                    <h3>Fan bo'yicha O'rtacha Baholar</h3>
+                    <canvas id="chart-fan-baho"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Harf Baholari Taqsimoti</h3>
+                    <canvas id="chart-harf"></canvas>
+                </div>
+            </div>
+
+            <div class="charts-row">
+                <div class="chart-card wide">
+                    <h3>Guruh bo'yicha O'rtacha Baho</h3>
+                    <canvas id="chart-guruh"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Oylik Davomat Trendi (%)</h3>
+                    <canvas id="chart-davomat-trend"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- TALABALAR PAGE -->
+        <section class="page" id="page-talabalar">
+            <div class="page-header">
+                <h1>Talabalar <span class="accent">—</span> Ro'yxat</h1>
+                <p class="subtitle">Barcha talabalar ma'lumotlari</p>
+            </div>
+            <div class="filter-bar">
+                <input type="text" id="qidiruv" placeholder="Talaba ismini qidiring..." class="search-input">
+                <select id="guruh-filter" class="select-input">
+                    <option value="">Barcha guruhlar</option>
+                </select>
+                <button class="btn-filter" style="background:#4af7a0; color:#0a0a0f" onclick="openAddModal()">+ Yangi Talaba</button>
+            </div>
+            <div class="table-container">
+                <table class="data-table" id="talabalar-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Ism</th>
+                            <th>Guruh</th>
+                            <th>Email</th>
+                            <th>O'rtacha Baho</th>
+                            <th>Davomat %</th>
+                            <th>Holat</th>
+                            <th>Harakatlar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="talabalar-tbody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- TALABA DETAIL MODAL -->
+        <div class="modal-overlay" id="modal-overlay">
+            <div class="modal" id="talaba-modal">
+                <button class="modal-close" id="modal-close">✕</button>
+                <div id="modal-content"></div>
+            </div>
+        </div>
+
+        <!-- ADD STUDENT MODAL -->
+        <div class="modal-overlay" id="add-modal-overlay">
+            <div class="modal" id="add-talaba-modal" style="max-width: 400px;">
+                <button class="modal-close" onclick="closeAddModal()">✕</button>
+                <div class="modal-talaba-name">Yangi Talaba Qo'shish</div>
+                <div class="modal-meta">Talaba ma'lumotlarini kiriting</div>
+                <form id="add-student-form" onsubmit="addTalaba(event)">
+                    <div class="modal-section" style="display:flex; flex-direction:column; gap:12px;">
+                        <input type="text" id="new-ism" class="search-input" placeholder="Ism Familiya" required>
+                        <input type="text" id="new-guruh" class="search-input" placeholder="Guruh (masalan: CS-101)" required>
+                        <input type="email" id="new-email" class="search-input" placeholder="Email" required>
+                        <div style="display:flex; gap:12px;">
+                            <input type="number" id="new-baho" min="0" max="100" class="search-input" placeholder="O'rtacha baho (0-100)" required style="flex:1;">
+                            <input type="number" id="new-davomat" min="0" max="100" class="search-input" placeholder="Davomat % (0-100)" required style="flex:1;">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-filter" style="width:100%; background:#4af7a0; color:#0a0a0f; margin-top:10px;">Saqlash</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- BAHOLAR PAGE -->
+        <section class="page" id="page-baholar">
+            <div class="page-header">
+                <h1>Baholar <span class="accent">—</span> Tahlil</h1>
+                <p class="subtitle">Baho statistikasi va tahlili</p>
+            </div>
+            <div class="filter-bar">
+                <select id="fan-filter" class="select-input">
+                    <option value="">Barcha fanlar</option>
+                </select>
+                <select id="semestr-filter" class="select-input">
+                    <option value="">Ikkala semestr</option>
+                    <option value="1">1-semestr</option>
+                    <option value="2">2-semestr</option>
+                </select>
+                <button class="btn-filter" id="baho-filter-btn">Filtrlash</button>
+            </div>
+            <div class="stats-grid mini">
+                <div class="stat-card"><div class="stat-label">Maksimal</div><div class="stat-value" id="b-max">—</div></div>
+                <div class="stat-card"><div class="stat-label">Minimal</div><div class="stat-value" id="b-min">—</div></div>
+                <div class="stat-card"><div class="stat-label">O'rtacha</div><div class="stat-value" id="b-avg">—</div></div>
+                <div class="stat-card"><div class="stat-label">Median</div><div class="stat-value" id="b-med">—</div></div>
+                <div class="stat-card"><div class="stat-label">Std.og'ish</div><div class="stat-value" id="b-std">—</div></div>
+            </div>
+            <div class="charts-row">
+                <div class="chart-card wide">
+                    <h3>Fan bo'yicha O'rtacha Baholar (Filtrlangan)</h3>
+                    <canvas id="chart-fan-filtered"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Harf Taqsimoti (Filtrlangan)</h3>
+                    <canvas id="chart-harf-filtered"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- DAVOMAT PAGE -->
+        <section class="page" id="page-davomat">
+            <div class="page-header">
+                <h1>Davomat <span class="accent">—</span> Tahlil</h1>
+                <p class="subtitle">Darsga qatnashish statistikasi</p>
+            </div>
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h3>Guruh bo'yicha Davomat (%)</h3>
+                    <canvas id="chart-guruh-davomat"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Fan bo'yicha Davomat (%)</h3>
+                    <canvas id="chart-fan-davomat"></canvas>
+                </div>
+            </div>
+            <div class="chart-card full-width">
+                <h3>Haftalik Davomat Trendi (%)</h3>
+                <canvas id="chart-haftalik"></canvas>
+            </div>
+            <div class="section-title">⚠ Xavfli Talabalar (Davomat &lt; 60%)</div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead><tr><th>Ism</th><th>Guruh</th><th>Davomat %</th><th>Holat</th></tr></thead>
+                    <tbody id="xavfli-tbody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- REYTING PAGE -->
+        <section class="page" id="page-reyting">
+            <div class="page-header">
+                <h1>Reyting <span class="accent">—</span> Top Talabalar</h1>
+                <p class="subtitle">Umumiy ball: Baho (70%) + Davomat (30%)</p>
+            </div>
+            <div class="reyting-grid">
+                <div class="reyting-col">
+                    <h3 class="reyting-title top">🏆 Top 10 — Eng Yaxshilar</h3>
+                    <div id="top10-list"></div>
+                </div>
+                <div class="reyting-col">
+                    <h3 class="reyting-title bottom">⚡ Diqqat Talab — Qo'llab-Quvvatlash Kerak</h3>
+                    <div id="bottom10-list"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
